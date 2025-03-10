@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import {
   getContests,
@@ -13,15 +13,16 @@ import styles from './CustomerDashboard.module.sass';
 import TryAgain from '../TryAgain/TryAgain';
 
 class CustomerDashboard extends React.Component {
-  loadMore = startFrom => {
+  loadMore = (startFrom) => {
     this.props.getContests({
       limit: 8,
       offset: startFrom,
       contestStatus: this.props.customerFilter,
+      userId: this.props.userId,
     });
   };
 
-  componentDidMount () {
+  componentDidMount() {
     this.getContests();
   }
 
@@ -29,16 +30,17 @@ class CustomerDashboard extends React.Component {
     this.props.getContests({
       limit: 8,
       contestStatus: this.props.customerFilter,
+      userId: this.props.userId,
     });
   };
 
-  componentDidUpdate (prevProps, prevState, snapshot) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.props.customerFilter !== prevProps.customerFilter) {
       this.getContests();
     }
   }
 
-  goToExtended = contest_id => {
+  goToExtended = (contest_id) => {
     this.props.navigate(`/contest/${contest_id}`);
   };
 
@@ -57,7 +59,7 @@ class CustomerDashboard extends React.Component {
     return array;
   };
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     this.props.clearContestsList();
   }
 
@@ -66,7 +68,7 @@ class CustomerDashboard extends React.Component {
     this.getContests();
   };
 
-  render () {
+  render() {
     const { error, haveMore } = this.props;
     const { customerFilter } = this.props;
     return (
@@ -131,13 +133,18 @@ class CustomerDashboard extends React.Component {
   }
 }
 
-const mapStateToProps = state => state.contestsList;
+// const mapStateToProps = state => state.contestsList;
 
-const mapDispatchToProps = dispatch => ({
-  getContests: data =>
+const mapStateToProps = (state) => ({
+  ...state.contestsList,
+  userId: state.userStore.data?.id,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  getContests: (data) =>
     dispatch(getContests({ requestData: data, role: CONSTANTS.CUSTOMER })),
   clearContestsList: () => dispatch(clearContestsList()),
-  newFilter: filter => dispatch(setNewCustomerFilter(filter)),
+  newFilter: (filter) => dispatch(setNewCustomerFilter(filter)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(CustomerDashboard);
